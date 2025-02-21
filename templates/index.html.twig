@@ -1,0 +1,255 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}F-Course | Online Courses{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+{% endblock %}
+
+{% block body %}
+{{parent()}}
+    <div>
+        <section class="hero">
+            <div class="slider-container">
+                <div class="slider">
+                    <div class="slide active">
+                        <img src="{{ asset('images/pexels-ivan-samkov-7213513.jpg') }}" alt="Slide 1">
+                        <div class="caption">Learn from the best instructors worldwide</div>
+                    </div>
+                    <div class="slide">
+                        <img src="{{ asset('images/pexels-rethaferguson-3059748.jpg') }}" alt="Slide 2">
+                        <div class="caption">Explore thousands of free courses</div>
+                    </div>
+                    <div class="slide">
+                        <img src="{{ asset('images/pexels-tima-miroshnichenko-7567431.jpg') }}" alt="Slide 3">
+                        <div class="caption">Boost your career with new skills</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+        <section class="categories">
+            <button>Programming</button>
+            <button>Business</button>
+            <button>Design</button>
+            <button>Marketing</button>
+            <button>IT</button>
+            <button>Science</button>
+            <button>Social Inteligence</button>
+            <button>E-commerce</button>
+        </section>
+
+    <h2 class="text-2xl font-semibold text-gray-800 shadow-lg p-4 bg-white rounded-md">Trending Courses</h2>
+
+
+
+    <main class="container">
+
+        <section class="courses">
+            {% for course in courses %}
+                <div class="course-card p-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out bg-white">
+                    <img src="{{ asset('images/' ~ course.getCourseImage()) }}" alt="{{ course.getTitle() }}" class="w-full h-40 object-cover rounded-md mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">{{ course.getTitle() }}</h3>
+                    <div class="group relative">
+                        <p class="text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis max-w-[250px]">
+                            {{ course.getDescription() }}
+                        </p>
+                        <div class="absolute hidden group-hover:block bg-white border border-gray-200 p-2 rounded-lg shadow-lg max-w-[300px] z-10">
+                            {{ course.getDescription() }}
+                        </div>
+                    </div>
+                    {% if app.user %}
+                         <a href="" class="rating-link text-blue-600 hover:text-blue-800" data-course-id="{{ course.getId() }}">
+                        <div>
+                            <label>Rating : </label>
+                            {% if course.getRating != 0 %}
+                                {% for star in range(1, course.getRating) %}
+                                    <span style="font-size:150%;color:yellow;">★</span>
+                                {% endfor %}
+                            {% else %}
+                                <span style="font-size:150%;color:yellow;">★</span>
+                            {% endif %}
+                        </div>
+                    </a>
+                    {% else %}
+                        <div>
+                            <label>Rating : </label>
+                            {% if course.getRating != 0 %}
+                                {% for star in range(1, course.getRating) %}
+                                    <span style="font-size:150%;color:yellow;">★</span>
+                                {% endfor %}
+                            {% else %}
+                                <span style="font-size:150%;color:yellow;">★</span>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    {% if app.user %}
+                        <div class="mt-4 flex justify-between items-center">
+                            {% if course.getVideos is not empty %}
+                                <a href="{{ path('app_learn', {id: course.getId()}) }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out">
+                                    Start Learning
+                                </a>
+                            {% else %}
+                                <button class="bg-gray-400 text-black px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-300 ease-in-out">
+                                    No videos yet
+                                </button>
+                            {% endif %}
+                            
+                            <span class="text-sm text-gray-500">Created on: 2020/03/04</span>
+                        </div>
+                        {% else %}
+                            <button class="bg-gray-400 text-black px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-300 ease-in-out">
+                                    Login to start learning
+                                </button>
+                    {% endif %}
+                </div>
+                {% else %}
+                    <div class="no-courses-message text-center p-8 bg-gray-100 border border-gray-300 rounded-lg shadow-md">
+                        <p class="text-xl font-semibold text-gray-800 mb-4">
+                            No courses available matching your search criteria yet.
+                        </p>
+                        <p class="text-gray-600">
+                            Check back later or explore other courses.
+                        </p>
+                    </div>
+            {% endfor %}
+            {% for course in courses %}
+                <div class="rating-modal hidden" data-course-id="{{ course.getId() }}">
+                    <div class="modal-content bg-white p-6 rounded-lg shadow-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                        <span class="close-button absolute top-2 right-2 text-2xl">&times;</span>
+                        
+                        <h2 class="text-xl font-bold mb-4">Rate this Course</h2>
+                        <form action="{{ path('app_rate' , { id : course.getId, index : 1}) }}" method="post">
+                            <div class="mb-4">
+                                <label for="rating-{{ course.getId() }}" class="block mb-2">Your Rating (1-5):</label>
+                                <input type="number" 
+                                    id="rating-{{ course.getId() }}" 
+                                    name="rating" 
+                                    min="1" 
+                                    max="5" 
+                                    required 
+                                    class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <button type="submit" 
+                                    class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300">
+                                Submit Rating
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 F-Course. All rights reserved.</p>
+    </footer>
+    {# ... (keep all the code the same until the JavaScript block) ... #}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Slider functionality
+    const slides = document.querySelectorAll('.slide');
+    let currentSlide = 0;
+    let slideInterval;
+
+    function showSlide(index) {
+        slides.forEach(slide => {
+            slide.classList.remove('active');
+        });
+        slides[index].classList.add('active');
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    function startSlideShow() {
+        slideInterval = setInterval(nextSlide, 10000);
+    }
+
+    showSlide(currentSlide);
+    startSlideShow();
+
+    // Modal functionality
+    const ratingLinks = document.querySelectorAll('.rating-link');
+    const ratingModals = document.querySelectorAll('.rating-modal');
+    const closeButtons = document.querySelectorAll('.close-button');
+
+    // Function to open modal
+    function openModal(modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        // Add semi-transparent overlay
+        const overlay = document.createElement('div');
+        overlay.classList.add('modal-overlay');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        overlay.style.zIndex = '40';
+        document.body.appendChild(overlay);
+    }
+
+    // Function to close modal
+    function closeModal(modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        // Remove overlay
+        const overlay = document.querySelector('.modal-overlay');
+        if (overlay) {
+            overlay.remove();
+        }
+    }
+
+    // Add click event listeners to rating links
+    ratingLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const courseId = this.getAttribute('data-course-id');
+            const modal = document.querySelector(`.rating-modal[data-course-id="${courseId}"]`);
+            if (modal) {
+                openModal(modal);
+            }
+        });
+    });
+
+    // Add click event listeners to close buttons
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.rating-modal');
+            if (modal) {
+                closeModal(modal);
+            }
+        });
+    });
+
+    // Close modal when clicking outside
+    document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('modal-overlay')) {
+            ratingModals.forEach(modal => {
+                closeModal(modal);
+            });
+        }
+    });
+
+    // Close modal with ESC key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            ratingModals.forEach(modal => {
+                closeModal(modal);
+            });
+        }
+    });
+});
+
+//notification js
+
+</script>
+
+{% endblock %}
+{% endblock %}

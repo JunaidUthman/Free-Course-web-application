@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}F-Course | About{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+{% endblock %}
+
+{% block body %}
+{{parent()}}
+
+    <div class="container mx-auto p-6 flex flex-col lg:flex-row gap-12">
+        <!-- Contact Form Section - Bigger on the Left -->
+        <section class="lg:w-2/3 bg-white p-8 rounded-lg shadow-lg">
+            <h2 class="text-3xl font-semibold text-gray-800 mb-6">Get in Touch</h2>
+            <p class="text-lg text-gray-700 mb-4">Have questions? Want to collaborate? Reach out to us through this form, and we’ll get back to you as soon as possible.</p>
+            <form action="{{path('app_emailSupport')}}" method="POST">
+
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 font-medium">Subject</label>
+                    <select type="email" name="subject" id="email" class="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500" required>
+                        <option value="general">General Inquiry</option>
+                        <option value="support">Technical Support</option>
+                        <option value="billing">Billing & Payments</option>
+                        <option value="feedback">Feedback & Suggestions</option>
+                        <option value="feature-request">Feature Request</option>
+                        <option value="partnership">Partnership Opportunities</option>
+                        <option value="careers">Career Opportunities</option>
+                        <option value="press">Press & Media Inquiries</option>
+                        <option value="security">Report a Security Issue</option>
+                        <option value="account">Account & Login Issues</option>
+                        <option value="other">Other</option>
+
+                    </select>
+                </div>
+
+                <div class="mb-4">
+                    <label for="message" class="block text-gray-700 font-medium">Your Message</label>
+                    <textarea name="email" id="message" rows="6" class="w-full p-3 border rounded-md focus:ring-2 focus:ring-blue-500" required></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-gray-800 text-white py-3 rounded-md hover:bg-gray-700 focus:outline-none">Send Email</button>
+            </form>
+        </section>
+
+        <!-- About Section - Smaller on the Right -->
+        <section class="lg:w-1/3 bg-gray-100 p-8 rounded-lg shadow-lg">
+            <h1 class="text-3xl font-semibold text-gray-800 mb-6">About Us</h1>
+            <p class="text-lg text-gray-700 mb-4">Welcome to F-Course, your go-to platform for online learning. We believe that knowledge should be free and accessible to everyone, which is why we offer high-quality educational content tailored for learners of all levels.</p>
+            <p class="text-lg text-gray-700 mb-4">Our platform offers a wide range of courses, from programming and design to business and soft skills. With expert instructors and an engaging community, F-Course helps you achieve your learning goals at your own pace.</p>
+            <p class="text-lg text-gray-700 mb-4">We are constantly improving our courses and resources to ensure the best learning experience. Whether you're a beginner or an experienced professional looking to sharpen your skills, F-Course is here to support your journey.</p>
+            <p class="text-lg text-gray-700 font-semibold">Join us today and start learning for free!</p>
+        </section>
+    </div>
+{% endblock %}

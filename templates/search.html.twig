@@ -1,0 +1,244 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}F-Course | Online Courses{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/search.css') }}">
+{% endblock %}
+
+{% block body %}
+    {{parent()}}
+
+    {# <button id="toggleFilter" class="filter-toggle-button flex items-center bg-gray-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none transition duration-300 ease-in-out m-4">
+        <span class="text-lg font-semibold">Toggle Filters</span>
+    </button> #}
+
+    <main class="container">
+
+        {# <aside id="sidebar" class="sidebar" class="sidebar hidden">
+            <h2>Filter Courses</h2>
+            <form action="{{ path('app_filter' , {value : search}) }}" method="POST">
+                <label for="language">Language:</label>
+                <select id="language" name="language">
+                    <option value="">All</option>
+                    <option value="english">English</option>
+                    <option value="french">French</option>
+                    <option value="spanish">Spanish</option>
+                </select>
+                
+                <label for="category">Category:</label>
+                <select id="category" name="category">
+                    <option value="">All</option>
+                    <option value="programming">Programming</option>
+                    <option value="design">Design</option>
+                    <option value="business">Business</option>
+                </select>
+                
+                <label for="rating">Minimum Rating:</label>
+                <select id="rating" name="rating">
+                    <option value="">All</option>
+                    <option value="5">★★★★★</option>
+                    <option value="4">★★★★☆</option>
+                    <option value="3">★★★☆☆</option>
+                    <option value="2">★★☆☆☆</option>
+                    <option value="1">★☆☆☆☆</option>
+                </select>
+                
+                <label for="level">Level:</label>
+                <select id="level" name="level">
+                    <option value="">All</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                </select>
+                
+                <button type="submit" class="filter-button">Apply Filters</button>
+            </form>
+        </aside> #}
+
+        <section class="courses"> 
+        
+            
+            {% for course in coursePagination %}
+                <div class="course-card p-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out bg-white">
+                        <img src="{{ asset('images/' ~ course.getCourseImage()) }}" alt="{{ course.getTitle() }}" class="w-full h-40 object-cover rounded-md mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">{{ course.getTitle() }}</h3>
+                        <div class="group relative">
+                            <p class="text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis max-w-[300px]">
+                                {{ course.getDescription() }}
+                            </p>
+                            <div class="absolute hidden group-hover:block bg-white border border-gray-200 p-2 rounded-lg shadow-lg max-w-[300px] z-10">
+                                {{ course.getDescription() }}
+                            </div>
+                        </div>       
+                        {% if app.user %}
+                            <a href="#" class="rating-link text-blue-600 hover:text-blue-800" data-course-id="{{ course.getId() }}">
+                            <div>
+                                <label>Rating : </label>
+                                {% if course.getRating != 0 %}
+                                    {% for star in range(1, course.getRating) %}
+                                        <span style="font-size:150%;color:yellow;">★</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span style="font-size:150%;color:yellow;">★</span>
+                                {% endif %}
+                            </div>
+                            </a>
+                        {% else %}
+                            <div>
+                                <label>Rating : </label>
+                                {% if course.getRating != 0 %}
+                                    {% for star in range(1, course.getRating) %}
+                                        <span style="font-size:150%;color:yellow;">★</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span style="font-size:150%;color:yellow;">★</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        {% if app.user %}
+                        <div class="mt-4 flex justify-between items-center">
+                            {% if course.getVideos is not empty %}
+                                <a href="{{ path('app_learn', {id: course.getId()}) }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out">
+                                    Start Learning
+                                </a>
+                            {% else %}
+                                <button class="bg-gray-400 text-black px-4 py-2 rounded-lg hover:bg-gray-400 transition duration-300 ease-in-out">
+                                    No videos yet
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    </div>
+            {% endfor %}
+            
+        </section>
+        
+    </main>
+    <div>
+    </div>
+
+    <div class="m-4 ">
+        <ul class="pagination flex list-none justify-center">
+                {% if coursePagination.currentPageNumber > 1 %}
+                    <li class="mr-2">
+                        <a href="{{ path('app_search', {page: coursePagination.currentPageNumber - 1}) }}" class="px-3 py-1 border rounded text-gray-700 hover:bg-gray-200">Previous</a>
+                    </li>
+                {% endif %}
+
+                {% for page in range(1, coursePagination.pageCount) %}
+                    <li class="mr-2">
+                        <a href="{{ path('app_search', {page: page}) }}" class="px-3 py-1 border rounded {% if coursePagination.currentPageNumber == page %}bg-blue-500 text-white{% else %}text-gray-700 hover:bg-gray-200{% endif %}">
+                            {{ page }}
+                        </a>
+                    </li>
+                {% endfor %}
+
+                {% if coursePagination.currentPageNumber < coursePagination.pageCount %}
+                    <li>
+                        <a href="{{ path('app_search', {page: coursePagination.currentPageNumber + 1}) }}" class="px-3 py-1 border rounded text-gray-700 hover:bg-gray-200">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 F-Course. All rights reserved.</p>
+    </footer>
+       <div class="modal-overlay" id="modalOverlay"></div>
+    {% for course in coursePagination %}
+        <div class="rating-modal hidden" data-course-id="{{ course.getId() }}">
+            <div class="modal-content bg-white p-6 rounded-lg shadow-2xl absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <span class="close-button absolute top-2 right-2 text-2xl">&times;</span>
+                
+                <h2 class="text-xl font-bold mb-4">Rate this Course</h2>
+                <form action="{{ path('app_rate' , { id : course.getId, index : 2}) }}" method="post">
+                    <div class="mb-4">
+                        <label for="rating-{{ course.getId() }}" class="block mb-2">Your Rating (1-5):</label>
+                        <input type="number" 
+                               id="rating-{{ course.getId() }}" 
+                               name="rating" 
+                               min="1" 
+                               max="5" 
+                               required 
+                               class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" 
+                            class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300">
+                        Submit Rating
+                    </button>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar toggle functionality
+    const toggleButton = document.getElementById('toggleFilter');
+    const sidebar = document.getElementById('sidebar');
+
+    toggleButton.addEventListener('click', function() {
+        sidebar.classList.toggle('hidden');
+    });
+
+    // Rating modal functionality (previous code remains the same)
+    const ratingLinks = document.querySelectorAll('.rating-link');
+    const ratingModals = document.querySelectorAll('.rating-modal');
+    const closeButtons = document.querySelectorAll('.close-button');
+    const modalOverlay = document.getElementById('modalOverlay');
+
+    function openModal(modal) {
+        modal.classList.remove('hidden');
+        document.body.classList.add('modal-open');
+    }
+
+    function closeModal(modal) {
+        modal.classList.add('hidden');
+        document.body.classList.remove('modal-open');
+    }
+
+    function closeAllModals() {
+        ratingModals.forEach(modal => {
+            closeModal(modal);
+        });
+    }
+
+    ratingLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const courseId = this.getAttribute('data-course-id');
+            const modal = document.querySelector(`.rating-modal[data-course-id="${courseId}"]`);
+            if (modal) {
+                openModal(modal);
+            }
+        });
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const modal = this.closest('.rating-modal');
+            if (modal) {
+                closeModal(modal);
+            }
+        });
+    });
+
+    window.addEventListener('click', function(event) {
+        if (event.target.classList.contains('rating-modal')) {
+            closeAllModals();
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeAllModals();
+        }
+    });
+});
+</script>
+{% endblock %}
+

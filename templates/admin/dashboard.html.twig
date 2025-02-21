@@ -1,0 +1,150 @@
+{% extends 'baseAdmin.html.twig' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block body %}
+{{ parent() }}
+<div class="flex h-screen bg-gray-100 overflow-hidden">
+    
+
+    
+    <!-- Main Content -->
+    <div class="flex-1 p-6 ml-64 overflow-y-auto h-screen">
+        <!-- Top Bar -->
+       <div class="flex items-end gap-4 justify-end mb-4">
+            <a href="{{ path('admin_profile') }}">
+                <button class="bg-gray-800 text-white px-4 py-2 rounded">Profile</button>
+            </a>
+            
+            <img src="{{ asset('images/' ~ app.user.imagepath) }}" alt="Profile" class="w-10 h-10 rounded-full">
+        </div>
+
+        <div id="user-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for user in users %}
+                {% if user != app.user %}
+                    
+                {% endif %}
+            {% endfor %}
+        </div>
+        
+        <!-- Dashboard Title -->
+        <div class="shadow-lg p-4 bg-white rounded-md">
+            <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-3 gap-4 mt-4">
+            <div class="bg-white shadow-lg p-6 shadow rounded text-center text-gray-800">👥 Accounts: {{n_accounts}}</div>
+            <div class="bg-white shadow-lg p-6 shadow rounded text-center text-gray-800">📚 Courses: {{n_courses}}</div>
+            <div class="bg-white shadow-lg p-6 shadow rounded text-center text-gray-800">🎥 Videos: {{n_videos}}</div>
+        </div>
+        
+        <!-- Last Checked Accounts & Notifications -->
+        <div class="grid grid-cols-2 gap-6 mt-6">
+            <!-- Last Checked Accounts -->
+            <div class="bg-white p-6 shadow rounded h-64 overflow-y-auto max-h-64">
+                <h3 class="text-lg font-semibold mb-4">Last Checked Accounts</h3>
+                <div class="divide-y divide-gray-300 space-y-4">
+                {% for last in lastAccounts %}
+                    <div class="flex flex-col p-3 bg-gray-100 rounded-md">
+                        <img src="{{asset('images/' ~ last.getCheckedUser.imagepath)}}" alt="Profile" class="w-10 h-10 rounded-full">
+                        <span class="text-gray-800 font-medium">{{last.getCheckedUser.getFullname}}</span>
+                        <span class="text-gray-600">{{last.getCheckedUser.getEmail}}</span>
+                        <a href="{{path('seeMore' , {id : last.getCheckedUser.getId})}}" class="text-blue-500 hover:underline mt-2">See more</a>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Notifications -->
+            <div class="bg-white p-6 shadow rounded h-64 overflow-y-auto max-h-64">
+                <h3 class="text-lg font-semibold mb-4">Last Notifications</h3>
+                <ul class="space-y-2">
+                {% for notification in notifications %}
+                    <li class="p-3 bg-blue-100 text-gray-700 rounded-md">{{notification.getContent}}</li>
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="grid grid-cols-2 gap-4 mt-4"> <!-- Reduced gap and margin -->
+            <div class="bg-white p-4 shadow rounded"> <!-- Reduced padding -->
+                <h3 class="text-lg font-semibold mb-3">Accounts's State</h3> <!-- Adjusted margin -->
+                <canvas id="dailyUsersChart" width="300" height="200"></canvas>
+            </div>
+            <div class="bg-white p-4 shadow rounded"> <!-- Reduced padding -->
+                <h3 class="text-lg font-semibold mb-3">Trending Topics</h3> <!-- Adjusted margin -->
+                <canvas id="trendingTopicsChart" width="300" height="100"></canvas>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const dailyUsersChart = new Chart(document.getElementById('dailyUsersChart'), {
+    type: 'bar',  // Change 'line' to 'bar'
+    data: {
+        labels: ['Deleted Accounts', 'Freezed Accounts', 'Active Accounts'],
+        datasets: [{
+            label: 'Users',
+            data: [{{n_deleted}}, {{n_frozen}}, {{n_active}}],
+            backgroundColor: 'rgb(75, 192, 192)',  // Use backgroundColor for bars
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true  // Ensure the y-axis starts from 0
+            }
+        }
+    }
+});
+
+
+    // Convert PHP array to JavaScript arrays
+    const trendingLabels = {{ trending_courses|map(course => course.category)|json_encode()|raw }};
+    const trendingData = {{ trending_courses|map(course => course.course_count)|json_encode()|raw }};
+
+    // Create the Pie Chart
+    const trendingTopicsChart = new Chart(document.getElementById('trendingTopicsChart'), {
+        type: 'pie',
+        data: {
+            labels: trendingLabels,
+            datasets: [{
+                data: trendingData,
+                backgroundColor: ['#ff6384', '#36a2eb', '#ffce56', '#8a2be2', '#ff4500'] // Add more colors if needed
+            }]
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+    const notificationSidebar = document.getElementById("notification-sidebar");
+    const openSidebar = document.getElementById("open-sidebar");
+    const closeSidebar = document.getElementById("close-sidebar");
+
+    openSidebar.addEventListener("click", function(event) {
+        event.preventDefault(); 
+        notificationSidebar.classList.remove("translate-x-full"); // Show sidebar
+    });
+
+    closeSidebar.addEventListener("click", function() {
+        notificationSidebar.classList.add("translate-x-full"); // Hide sidebar
+    });
+
+    // Close sidebar if clicked outside
+    document.addEventListener("click", function(event) {
+        if (!notificationSidebar.contains(event.target) && event.target !== openSidebar) {
+            notificationSidebar.classList.add("translate-x-full");
+        }
+    });
+});
+
+</script>
+{% endblock %}

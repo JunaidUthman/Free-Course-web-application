@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        {% block stylesheets %}
+        {% endblock %}
+
+        {% block javascripts %}
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}
+            <!-- Sidebar -->
+    <div class="w-64 bg-gray-900 text-white flex flex-col justify-between p-4 fixed h-full">
+        <div>
+            <div class="text-2xl font-bold text-center py-4">F-Course</div>
+            <nav class="mt-6">
+                <a href="{{path('admin_dashboard')}}" class="block py-2 px-4 rounded hover:bg-gray-700">🏠 Home</a>
+                <a href="{{path('admin_users')}}" class="block py-2 px-4 rounded hover:bg-gray-700">👥 Users</a>
+                <a href="#" id="open-sidebar" class="block py-2 px-4 rounded hover:bg-gray-700">🔔 Notifications</a>
+                <a href="{{path('admin_Courses')}}" class="block py-2 px-4 rounded hover:bg-gray-700">📚 Courses</a>
+            </nav>
+        </div>
+        <a href="{{ path('app_logout') }}" class="block py-2 px-4 bg-red-500 text-center rounded hover:bg-red-700">🚪 Logout</a>
+    </div>
+
+    <!-- Notification Sidebar -->
+    <div id="notification-sidebar" class="fixed top-0 right-0 w-80 h-screen bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-50">
+        <div class="flex justify-between items-center p-4 border-b">
+            <h2 class="text-lg font-semibold">Notifications</h2>
+            <button id="close-sidebar" class="text-gray-600 hover:text-gray-900 text-xl">&times;</button>
+        </div>
+        <div class="p-4 space-y-3 overflow-y-auto h-[90%]">
+            {% for notification in Allnotifications|reverse %}
+                <div class="flex items-center space-x-3 bg-gray-100 p-3 rounded-lg">
+                    <img src="{{ asset('images/' ~ notification.getSender.getImagePath) }}" class="w-10 h-10 rounded-full">
+                    <div class="text-sm">
+                        <strong class="block">{{ notification.getSender.getFullName }}</strong>
+                        <p class="text-gray-600">{{ notification.getContent }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+        {% endblock %}
+    </body>
+</html>

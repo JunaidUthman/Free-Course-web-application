@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create a Course{% endblock %}
+
+{% block body %}
+<div class="flex items-center justify-center min-h-screen bg-gray-300">
+    <div class="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+        <h1 class="text-2xl font-semibold text-gray-800 text-center mb-4">Create a Course</h1>
+
+        <form action="{{ path('app_add_Course') }}" method="post" class="space-y-4" enctype="multipart/form-data">
+            <!-- Title -->
+            <div>
+                <label class="block text-gray-700 font-medium">Title</label>
+                <input type="text" name="title" class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-gray-500 focus:border-gray-500">
+            </div>
+
+            <!-- Language -->
+            <div>
+                <label class="block text-gray-700 font-medium">Language</label>
+                <input type="text" name="language" class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-gray-500 focus:border-gray-500">
+            </div>
+
+            <!-- Category -->
+            <div>
+                <label class="block text-gray-700 font-medium">Category</label>
+                <input type="text" name="category" class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-gray-500 focus:border-gray-500">
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block text-gray-700 font-medium">Description</label>
+                <textarea name="description" rows="4" class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-gray-500 focus:border-gray-500"></textarea>
+            </div>
+
+            <!-- Course Image -->
+            <div>
+                <label class="block text-gray-700 font-medium">Course Image</label>
+                <input type="file" name="course_image" class="w-full px-4 py-2 border rounded-lg focus:ring focus:ring-gray-500 focus:border-gray-500" accept="image/*">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition duration-300">
+                Submit
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

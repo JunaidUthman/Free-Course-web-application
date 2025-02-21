@@ -1,0 +1,155 @@
+{% extends "baseAdmin.html.twig" %}
+
+{% block title %}Admin Dashboard - Courses{% endblock %}
+
+{% block body %}
+{{ parent() }}
+
+    <div class="flex-1 p-6 ml-64 overflow-y-auto h-screen">
+
+        <div class="flex-1 flex justify-center ">
+                <form id="search-form" action="#" method="GET">
+                    <input type="text" id="search-input" placeholder="Search accounts..." class="p-2 border rounded w-100 focus:ring-2 focus:ring-blue-500 relative left-[125px]">
+                    <button type="submit" id="search-button" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 relative left-[125px]">Search</button>
+                </form>            
+
+                <a href="{{path('admin_profile')}}" class="ml-80">
+                    <button class="bg-gray-800 text-white px-4 py-2 rounded">Profile</button>
+                </a>
+                
+                <img src="{{asset('images/' ~ app.user.imagepath)}}" alt="Profile" class="w-10 h-10 rounded-full relative left-[4px]">
+        </div>
+
+
+        <div class="shadow-lg p-4 bg-white rounded-md">
+            <h2 class="text-2xl font-semibold text-gray-800">Courses</h2>
+        </div>
+
+        <section id="user-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-10" >
+            {% for course in pagination %}
+                <div class="course-card p-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out bg-white">
+                    <img src="{{ asset('images/' ~ course.getCourseImage()) }}" alt="{{ course.getTitle() }}" class="w-full h-40 object-cover rounded-md mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">{{ course.getTitle() }}</h3>
+                    <div class="group relative">
+                        <p class="text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis max-w-[250px]">
+                            {{ course.getDescription() }}
+                        </p>
+                        <div class="absolute hidden group-hover:block bg-white border border-gray-200 p-2 rounded-lg shadow-lg max-w-[300px] z-10">
+                            {{ course.getDescription() }}
+                        </div>
+                    </div>
+                        <div>
+                            <label>Rating : </label>
+                            {% if course.getRating != 0 %}
+                                {% for star in range(1, course.getRating) %}
+                                    <span style="font-size:150%;color:yellow;">★</span>
+                                {% endfor %}
+                            {% else %}
+                                <span style="font-size:150%;color:yellow;">★</span>
+                            {% endif %}
+                        </div>
+                        <div class="mt-4 flex justify-between items-center">
+                                <a href="{{ path('checkVideo', {id: course.getId()}) }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out">
+                                    Start Learning
+                                </a>
+                        </div>
+                </div>
+            {% endfor %}
+        </section>
+        <div class="mt-6 flex justify-center">
+            <ul class="pagination flex list-none">
+                {% if pagination.currentPageNumber > 1 %}
+                    <li class="mr-2">
+                        <a href="{{ path('admin_Courses', {page: pagination.currentPageNumber - 1}) }}" class="px-3 py-1 border rounded text-gray-700 hover:bg-gray-200">Previous</a>
+                    </li>
+                {% endif %}
+
+                {% for page in range(1, pagination.pageCount) %}
+                    <li class="mr-2">
+                        <a href="{{ path('admin_Courses', {page: page}) }}" class="px-3 py-1 border rounded {% if pagination.currentPageNumber == page %}bg-blue-500 text-white{% else %}text-gray-700 hover:bg-gray-200{% endif %}">
+                            {{ page }}
+                        </a>
+                    </li>
+                {% endfor %}
+
+                {% if pagination.currentPageNumber < pagination.pageCount %}
+                    <li>
+                        <a href="{{ path('admin_Courses', {page: pagination.currentPageNumber + 1}) }}" class="px-3 py-1 border rounded text-gray-700 hover:bg-gray-200">Next</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+
+
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const searchInput = document.getElementById("search-input");
+    const userContainer = document.getElementById("user-list");
+
+    searchInput.addEventListener("keyup", function() {
+        let query = searchInput.value.trim();
+
+        fetch(`/admin/courseSearch?query=${query}`, { method: "GET" })
+            .then(response => response.json())
+            .then(data => {
+                userContainer.innerHTML = ""; // Clear previous results
+
+                if (data.length === 0) {
+                    userContainer.innerHTML = "<p class='text-gray-600'>No users found</p>";
+                    return;
+                }
+
+                data.forEach(course => {
+                    let userDiv = `
+                        <div class="course-card p-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out bg-white">
+                            <img src="/images/${course.courseImage}" alt="${course.title}" class="w-full h-40 object-cover rounded-md mb-4">
+                            <h3 class="text-lg font-semibold text-gray-800">${course.title}</h3>
+                            <div class="group relative">
+                                <p class="text-gray-600 whitespace-nowrap overflow-hidden text-ellipsis max-w-[250px]">
+                                    ${course.description}
+                                </p>
+                                <div class="absolute hidden group-hover:block bg-white border border-gray-200 p-2 rounded-lg shadow-lg max-w-[300px] z-10">
+                                    ${course.description}
+                                </div>
+                            </div>
+                            <div class="mt-4 flex justify-between items-center">
+                                <a href="/checkVideo/${course.id}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-300 ease-in-out">
+                                    Start Learning
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    userContainer.innerHTML += userDiv;
+                });
+            })
+            .catch(error => console.error("Error fetching data:", error));
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    const notificationSidebar = document.getElementById("notification-sidebar");
+    const openSidebar = document.getElementById("open-sidebar");
+    const closeSidebar = document.getElementById("close-sidebar");
+
+    openSidebar.addEventListener("click", function(event) {
+        event.preventDefault(); 
+        notificationSidebar.classList.remove("translate-x-full"); // Show sidebar
+    });
+
+    closeSidebar.addEventListener("click", function() {
+        notificationSidebar.classList.add("translate-x-full"); // Hide sidebar
+    });
+
+    // Close sidebar if clicked outside
+    document.addEventListener("click", function(event) {
+        if (!notificationSidebar.contains(event.target) && event.target !== openSidebar) {
+            notificationSidebar.classList.add("translate-x-full");
+        }
+    });
+});
+    </script>
+
+    
+{% endblock %}

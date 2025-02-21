@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}F-Course | Video{% endblock %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+{% endblock %}
+
+{% block body %}
+<div class="flex p-6 space-x-6 bg-white min-h-screen text-white">
+    <div class="w-2/3 bg-gray-300 p-6 rounded-lg shadow-lg">
+        <video class="w-full rounded-lg shadow-lg" controls>
+            <source src="{{ asset('/videos/' ~ video.getVideoPath()) }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="mt-4">
+            <h1 class="text-xl text-gray-800 font-semibold">{{ video.getTitle() }}</h1>
+            <p class="mt-2 text-gray-600">{{ video.getDescription() }}</p>
+            <div class="flex items-center space-x-6 mt-4">
+                    <button>
+                        <div class="flex items-center text-gray-800">
+                            {% set userLiked = false %}
+                            {% for like in video.getLikes() %}
+                                {% if like.getUser() == app.user %}
+                                    {% set userLiked = true %}
+                                {% endif %}
+                            {% endfor %}
+                                <img src="{{ asset('/icons/like_off.png') }}" class="w-6 h-6 mr-2" alt="Like">
+                            <span>{{ video.countLikes() }} Likes</span>
+                        </div>
+                    </button>
+                <div class="flex items-center text-gray-800">
+                    <img src="{{ asset('/icons/comment.png') }}" class="w-6 h-6 mr-2" alt="Comments">
+                    <span>{{ video.getComments()|length }} Comments</span>
+                </div>
+            </div>
+        </div>
+        <div class="mt-6">
+            <h2 class="text-lg font-semibold text-gray-800">Comments</h2>
+            {% if app.user %}
+                <form action="{{ path('app_comment' , { id : video.getId() }) }}" method="POST" class="mt-4">
+                    <textarea name="comment" rows="3" class="w-full p-2 border border-gray-600 bg-gray-700 rounded-md text-white" placeholder="Write a comment..."></textarea>
+                    <button type="submit" class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500">Post Comment</button>
+                </form>
+            {% else %}
+                <p class="text-gray-400 mt-2">Log in to post a comment.</p>
+            {% endif %}
+            <div class="mt-4 space-y-4">
+                {% for comment in video.getComments()|reverse %}
+                    <div class="flex items-start space-x-3 p-3 bg-gray-700 rounded-md shadow-sm">
+                        <img src="{{ asset('/images/' ~ comment.getUsers.getImagePath) }}" alt="" class="w-12 h-12 rounded-full flex-shrink-0">
+                        <div class="flex flex-col overflow-hidden">
+                            <label class="text-gray-300 font-bold">{{ comment.getUsers().getFullname() }}</label>
+                            <p class="text-gray-400 text-sm break-words">
+                                {{ comment.getContent() }}
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-gray-400">No comments yet.</p>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="w-1/3 bg-gray-300 p-6 rounded-lg shadow-lg">
+        <h2 class="text-black font-semibold mb-4">Related Videos</h2>
+        <div class="overflow-y-auto max-h-[500px] space-y-4">
+            {% for relatedVideo in video.getCourses().getVideos() %}
+                <a href="{{ path('app_video', {id: relatedVideo.getId()}) }}" class="block p-3 border border-gray-700 rounded-lg shadow-sm hover:bg-gray-700 transition duration-200 ease-in-out">
+                    <img src="{{ asset('/images/' ~ relatedVideo.getVideoImage()) }}" class="w-full h-32 object-cover rounded-md" alt="Thumbnail">
+                    <p class="text-black mt-2 font-semibold">{{ relatedVideo.getTitle() }}</p>
+                </a>
+            {% else %}
+                <p class="text-gray-900">No related videos available.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}F-Course | Profile{% endblock %}
+
+{% block stylesheets %}
+    <style>
+            /* Modal (Popup) Styles */
+        /* Ensure the modal container takes the full screen but doesn't overflow */
+        .modal {
+            display: none; /* Initially hidden */
+            position: fixed;
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            overflow: hidden; /* Prevent body scroll */
+            padding-top: 60px;
+        }
+
+        /* Modal Content */
+        .modal-content {
+            background-color: #fff;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative; /* To position the close button */
+        }
+
+        /* Close Button */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #aaa;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .close-button:hover {
+            color: #000; /* Change color when hovered */
+        }
+
+        /* Prevent scrolling when modal is active */
+        body.modal-active {
+            overflow: hidden;
+        }
+
+        /* Close button */
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Styling for input and form */
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+    </style>
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+{% endblock %}
+
+{% block body %}
+    {{ parent() }}
+    <!-- Profile Page Content -->
+    <div class="flex p-6 space-x-12">
+        <!-- Left Section: Profile Picture & Update Form -->
+        <div class="w-1/3 bg-gray-100 p-6 rounded-xl shadow-lg">
+            <!-- Profile Picture -->
+            <div class="mb-6 text-center">
+                <img src="{{ asset('images/' ~ app.user.getImagePath) }}" alt="Profile Picture" class="w-40 h-40 rounded-full mx-auto border-4 border-gray-300">
+                <form action="{{ path('edit_profile_picture') }}" method="POST" enctype="multipart/form-data">
+                    <!-- Hidden file input -->
+                    <input type="file" name="profile_picture" id="profile_picture" class="hidden" accept="image/*" onchange="this.form.submit()">
+                    
+                    <!-- Button to trigger file input -->
+                    <button type="button" class="mt-2 text-white bg-blue-600 px-5 py-3 rounded-full text-lg font-semibold hover:bg-blue-500 focus:outline-none" onclick="document.getElementById('profile_picture').click()">
+                        +
+                    </button>
+                </form>
+            </div>
+
+            
+            <!-- Profile Update Form -->
+            <h2 class="text-xl font-semibold text-gray-800 text-center mb-4">Update Profile</h2>
+            <form method="POST" action="{{ path('app_update_profileInfo') }}">
+                <div class="mb-4">
+                    <label for="fullname" class="block text-gray-700 font-medium">Full Name</label>
+                    <input type="text" name="fullname" id="fullname" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" value="{{ app.user.getFullname() }}" required>
+                </div>
+
+                <div class="mb-4">
+                    <label for="password" class="block text-gray-700 font-medium">Password</label>
+                    <input type="password" name="password" id="password" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" placeholder="New password )">
+                </div>
+
+                <button type="submit" class="w-full bg-gray-800 text-white py-2 rounded-md hover:bg-gray-700 focus:outline-none">Update Profile</button>
+            </form>
+
+            <!-- change email -->
+            <form method="POST" action="{{ path('app_update_email') }}">
+                <div class="mb-4">
+                    <label for="email" class="block text-gray-700 font-medium">Email</label>
+                    <input type="email" name="email" id="email" class="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500" value="{{ app.user.getEmail() }}" required>
+
+                    <button type="submit" class=" bg-gray-800 text-white py-2 rounded-md hover:bg-gray-700 focus:outline-none w-88 mt-4">Update Email</button>
+
+                </div>
+            </form>
+            
+        </div>
+
+        <!-- Right Section: Add Course & Courses List -->
+        <div class="w-2/3 bg-gray-100 p-6 rounded-xl shadow-lg">
+            <h2 class="text-xl font-semibold text-gray-800 text-center mb-4">Your Courses</h2>
+
+            <!-- Add Course Button -->
+            <div class="mb-6 text-center">
+                <a href="{{ path('app_add_Course') }}" class="inline-block bg-green-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-green-500 focus:outline-none">Add Course</a>
+            </div>
+            <!-- Display Affiliated Courses -->
+           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {% for course in app.user.getCourses() %}
+                    <div class="course-card p-4 border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition duration-300 ease-in-out bg-white">
+                        <img src="{{ asset('images/' ~ course.getCourseImage()) }}" alt="{{ course.getTitle() }}" class="w-full h-40 object-cover rounded-md mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">{{ course.getTitle() }}</h3>
+                        <p class="text-gray-600">{{ course.getDescription() }}</p>
+                        
+                        <a href="" class="rating-link text-blue-600 hover:text-blue-800" data-course-id="{{ course.getId() }}">
+                            <div>
+                                <label>Rating : </label>
+                                {% if course.getRating != 0 %}
+                                    {% for star in range(1, course.getRating) %}
+                                        <span style="font-size:150%;color:yellow;">★</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span style="font-size:150%;color:yellow;">★</span>
+                                {% endif %}
+                            </div>
+                        </a>
+
+                        <div class="mt-4 flex justify-between items-center">
+                            <a href="{{ path('app_editCourse' , {id: course.getId()}) }}" class="text-green-600 hover:underline">Edit</a>
+                            <a href="{{ path('app_deleteCourse' , {id: course.getId()}) }}" class="text-red-600 hover:underline">Delete</a>
+                            <span class="text-sm text-gray-500">Created on: 2020/03/04</span>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-center text-gray-600">You have no courses yet.</p>
+                {% endfor %}
+            </div>
+
+            <!-- Modals container (outside of the grid) -->
+            {% for course in app.user.getCourses() %}
+                <div class="rating-modal hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50" data-course-id="{{ course.getId() }}">
+                    <div class="modal-content bg-white p-6 rounded-lg shadow-2xl relative max-w-md w-full">
+                        <!-- Close button -->
+                        <span class="close-button absolute top-2 right-2 text-2xl cursor-pointer hover:text-gray-700">&times;</span>
+                        
+                        <h2 class="text-xl font-bold mb-4">Rate this Course</h2>
+                        <form action="{{ path('app_rate' , { id : course.getId }) }}" method="post">
+                            <div class="mb-4">
+                                <label for="rating-{{ course.getId() }}" class="block mb-2">Your Rating:</label>
+                                <input type="number" id="rating-{{ course.getId() }}" name="rating" min="1" max="5" required 
+                                    class="w-full p-2 border rounded">
+                            </div>
+                            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                                Submit Rating
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <style>
+                .modal-active {
+                    overflow: hidden;
+                }
+                .hidden {
+                    display: none;
+                }
+                .rating-modal {
+                    background: transparent;
+                    pointer-events: auto;
+                }
+                .modal-content {
+                    min-width: 300px;
+                    border: 1px solid #e5e7eb;
+                }
+            </style>
+
+            <script>
+                // Get all rating links and modals
+                const ratingLinks = document.querySelectorAll('.rating-link');
+                const ratingModals = document.querySelectorAll('.rating-modal');
+                const closeButtons = document.querySelectorAll('.close-button');
+
+                // Add click event listeners to all rating links
+                ratingLinks.forEach(link => {
+                    link.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        const courseId = this.getAttribute('data-course-id');
+                        const modal = document.querySelector(`.rating-modal[data-course-id="${courseId}"]`);
+                        modal.classList.remove('hidden');
+                    });
+                });
+
+                // Add click event listeners to all close buttons
+                closeButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        const modal = this.closest('.rating-modal');
+                        modal.classList.add('hidden');
+                    });
+                });
+
+                // Close modal when clicking outside
+                document.addEventListener('click', function(event) {
+                    if (!event.target.closest('.modal-content') && !event.target.closest('.rating-link')) {
+                        ratingModals.forEach(modal => {
+                            modal.classList.add('hidden');
+                        });
+                    }
+                });
+            </script>
+
+        </div>
+    </div>
+            {% endblock %}

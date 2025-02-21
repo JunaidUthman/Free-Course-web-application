@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+        <style>
+    .rating-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 50;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 0.5rem;
+        width: 90%;
+        max-width: 500px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 51;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .close-button {
+        position: absolute;
+        top: 0.5rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #666;
+        transition: color 0.2s ease;
+    }
+
+    .close-button:hover {
+        color: #000;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    /* Ensure the modal stays centered on different screen sizes */
+    @media (max-height: 600px) {
+        .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+    }
+
+    /* Add animation for modal opening */
+    .rating-modal:not(.hidden) .modal-content {
+        animation: modalFadeIn 0.3s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+            transform: translate(-50%, -48%) scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+    }
+
+    /* Notification Sidebar Styles */
+    .notification-sidebar {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 350px;
+    height: 100%;
+    background-color: #fff;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease-in-out;
+    z-index: 1000;
+    overflow-y: auto;
+    border-left: 1px solid #ddd;
+}
+
+.notification-sidebar.active {
+    transform: translateX(-350px);
+}
+
+.notification-header {
+    padding: 20px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.notification-content {
+    padding: 10px;
+}
+
+.notification-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.2s;
+}
+
+.notification-item:hover {
+    background-color: #f9f9f9;
+}
+
+.notification-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+}
+
+.notification-text {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.4;
+}
+
+.close-sidebar {
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: #555;
+    transition: color 0.2s;
+    padding: 5px;
+    line-height: 1;
+}
+
+.close-sidebar:hover {
+    color: #000;
+}
+
+/* Add overlay when sidebar is active */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(51, 51, 51, 0.5); /* Using #333 with opacity */
+    z-index: 999;
+    backdrop-filter: blur(2px);
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* Custom scrollbar for the sidebar */
+.notification-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-sidebar::-webkit-scrollbar-track {
+    background: #f5f5f5;
+}
+
+.notification-sidebar::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+}
+
+.notification-sidebar::-webkit-scrollbar-thumb:hover {
+    background: #333;
+}
+
+/* Add timestamp style if needed */
+.notification-timestamp {
+    font-size: 0.8rem;
+    color: #555;
+    margin-top: 5px;
+}
+
+/* Unread notification style */
+.notification-item.unread {
+    background-color: #f8f8f8;
+}
+
+.notification-item.unread::before {
+    content: '';
+    display: block;
+    width: 8px;
+    height: 8px;
+    background-color: #333;
+    border-radius: 50%;
+    position: absolute;
+    left: 10px;
+    margin-top: -4px;
+}
+
+/* Empty state style */
+.notification-empty {
+    padding: 30px 20px;
+    text-align: center;
+    color: #555;
+    font-style: italic;
+}
+</style>
+        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        {% block stylesheets %}
+        {% endblock %}
+
+        {% block javascripts %}
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}
+            <header> 
+                <a href="{{path('app_main')}}"><div class="font-bold">F-Course</div></a>
+                <form action="{{ path('app_search') }}" method="post">
+                    <div class="search-bar">
+                        <input type="text" placeholder="Search courses..." name="search" class="mr-4">
+                        <button type="submit" class="bg-gray-400 p-2 rounded">Search</button>
+                    </div>
+                </form>
+                <nav>
+                    <a href="{{path('app_main')}}">Home</a>
+                    
+                    {% if app.user %}
+                        <a href="{{path('app_about')}}">About</a>
+                        <a href="{{ path('app_logout') }}">Logout</a>
+                        
+                    {% else %}
+                        <a href="{{path('app_aboutNonlogedIn')}}">About</a>
+                        <a href="{{ path('app_register') }}">Login</a>
+                    {% endif %}
+
+                    {% if app.user %}
+                        <a href="" id="notification-toggle">Notifications</a>
+                        <a href="{{ path('app_profile') }}">Profile</a>
+                    {% endif %}
+                </nav>
+            </header>
+<!-- Notification Sidebar -->
+<div class="notification-sidebar" id="notification-sidebar">
+    <div class="notification-header">
+        <span>Notifications</span>
+        <span class="close-sidebar">&times;</span>
+    </div>
+    <div class="notification-content">
+        {% for notification in notifications|reverse %}
+            <div class="notification-item">
+            <img src="{{ asset('images/' ~ notification.getSender.getImagepath) }}" alt="User">
+            <div class="notification-text"><strong>{{notification.getSender.getFullname}}</strong> : {{notification.getContent}}</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+        {% endblock %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+    const notificationToggle = document.getElementById('notification-toggle');
+    const notificationSidebar = document.getElementById('notification-sidebar');
+    const closeSidebar = document.querySelector('.close-sidebar');
+    
+    // Create overlay element
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+
+    function openSidebar() {
+        notificationSidebar.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebarFunc() {
+        notificationSidebar.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    notificationToggle.addEventListener('click', function(event) {
+        event.preventDefault();
+        openSidebar();
+    });
+
+    closeSidebar.addEventListener('click', closeSidebarFunc);
+    overlay.addEventListener('click', closeSidebarFunc);
+
+    // Close sidebar with Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && notificationSidebar.classList.contains('active')) {
+            closeSidebarFunc();
+        }
+    });
+});
+        </script>
+    </body>
+</html>

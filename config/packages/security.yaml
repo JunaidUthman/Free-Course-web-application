@@ -1,0 +1,87 @@
+security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: email
+        # used to reload user from session & other features (e.g. switch_user)
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            lazy: true
+            user_checker: App\Security\UserChecker
+            provider: app_user_provider
+            custom_authenticator: App\Security\LoginManagerAuthenticator
+            logout:
+                path: app_logout
+                target: app_main  # Normal user redirection after logout
+                invalidate_session: true
+
+        # Firewall for admin users
+        admin:
+            pattern: ^/admin
+            lazy: true
+            provider: app_user_provider
+            custom_authenticator: App\Security\LoginManagerAuthenticator
+            logout:
+                path: app_logout
+                target: admin # Admin redirection after logout
+                invalidate_session: true
+
+            access_denied_url: /admin  # Redirect unauthorized users to /home
+
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/admin/dashboard, roles: ROLE_ADMIN }
+        - { path: ^/admin/users, roles: ROLE_ADMIN }
+        - { path: ^/admin/usersInfo, roles: ROLE_ADMIN }
+        - { path: ^/checkVideo, roles: ROLE_ADMIN }
+        - { path: ^/admin/courses, roles: ROLE_ADMIN }
+
+        - { path: ^/profile, roles: ROLE_USER }
+        - { path: ^/updatePicture, roles: ROLE_USER }
+        - { path: ^/updateProfileInfo, roles: ROLE_USER }
+        - { path: ^/UpdateEmail, roles: ROLE_USER }
+        - { path: ^/addCourse, roles: ROLE_USER }
+        - { path: ^/editCourse, roles: ROLE_USER }
+        - { path: ^/updateCourse, roles: ROLE_USER }
+        - { path: ^/deleteCourse, roles: ROLE_USER }
+        - { path: ^/addVideo, roles: ROLE_USER }
+        - { path: ^/updateVideo, roles: ROLE_USER }
+        - { path: ^/Video, roles: ROLE_USER }
+        - { path: ^/like, roles: ROLE_USER }
+        - { path: ^/comment, roles: ROLE_USER }
+        - { path: ^/deleteVideo, roles: ROLE_USER }
+        - { path: ^/rate, roles: ROLE_USER }
+        - { path: ^/learn, roles: ROLE_USER }
+        
+        #- { path: ^/verify/email, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        
+
+when@test:
+    security:
+        password_hashers:
+            # By default, password hashers are resource intensive and take time. This is
+            # important to generate secure password hashes. In tests however, secure hashes
+            # are not important, waste resources and increase test times. The following
+            # reduces the work factor to the lowest possible values.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon
